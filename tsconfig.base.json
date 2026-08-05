@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "lib": [
+      "ES2022"
+    ],
+    "types": [
+      "node"
+    ],
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+  }
+}

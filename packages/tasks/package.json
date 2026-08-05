@@ -1,13 +1,29 @@
 {
   "name": "@foundry/tasks",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "build": "tsc",
+    "lint": "oxlint --fix",
+    "format": "oxfmt --write",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@effect/tsgo": "0.31.0",
+    "@effect/vitest": "0.30.0",
+    "@types/node": "^24.13.3",
+    "esbuild": "^0.28.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "1.77.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
 }

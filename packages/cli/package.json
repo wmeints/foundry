@@ -1,6 +1,6 @@
 {
   "name": "@foundry/cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "keywords": [
     "agentic engineering",
@@ -20,11 +20,11 @@
   "scripts": {
     "start": "dist/index.js",
     "test": "vitest --run",
-    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap --outfile=dist/index.js && chmod +x dist/index.js",
+    "test:watch": "vitest",
+    "build": "tsc",
     "lint": "oxlint --fix",
     "format": "oxfmt --write",
-    "typecheck": "tsc --noEmit",
-    "prepare": "effect-tsgo patch --typescript --oxlint"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@effect/platform": "0.97.1",
