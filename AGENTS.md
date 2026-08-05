@@ -25,6 +25,12 @@ software factory using the effect library.
   (red), make it pass with the minimal code needed (green), then refine the
   design and remove duplication (refactor).
 
+## Vendor libraries
+
+- `vendor/effect` contains the source files for the effect libraries. The
+  packages in this project MUST use the published version of the packages. The
+  source code is there for reference only!
+
 ## Writing tests
 
 When writing tests, use the `@effect/vitest` library. It allows you to write
