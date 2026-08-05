@@ -25,7 +25,7 @@ This sounds a little abstract, so let's translate this into a concrete example:
 
 The control loop for the factory can stop here. You can also expand the factory with a second control loop that reviews pull requests and submits any comments on the PR. Having multiple control loops can be useful to modularize your factory.
 
-The control loop looks awfully like a regular implementation workflow. But it isn't. Instead of pending backlog item you can also periodically review the code in the repository, against your coding standards and create bugs for areas where the codebase deviates from your standards. The input signal is a measured error, and the control action is the submission of the bug. The new state is that we have a bug to fix.
+The control loop looks awfully like a regular implementation workflow. But it isn't. Instead of pending backlog item you can also periodically review the code in the repository against your coding standards and create bugs for areas where the codebase deviates from your standards. The input signal is a measured error, and the control action is the submission of the bug. The new state is that we have a bug to fix. You can also let the factory review the structure of your code and propose improvements as issues or pull requests.
 
 ### Implementing control loops
 
@@ -48,8 +48,7 @@ export default Effect.gen(function* () {
 })
 ```
 
-We include a number of tasks to help you build effects for the factory for the control loops in your factory.
-
+We include a number of tasks to help you build effects for the factory for the control loops in your factory. By using the effects exposed by `@foundry/tasks` you can quickly build basic control loops to build software.
 
 ## Documentation
 
