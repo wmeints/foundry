@@ -1,6 +1,5 @@
 packages:
   - 'packages/*'
-  - 'vendor/*'
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
@@ -14,3 +13,17 @@ minimumReleaseAgeExclude:
   - '@effect/tsgo-win32-arm64@0.31.0'
   - '@effect/tsgo-win32-x64@0.31.0'
   - '@effect/tsgo@0.31.0'
+catalog:
+  '@effect/platform': '0.97.1'
+  '@effect/platform-node': '0.108.1'
+  '@effect/tsgo': '0.31.0'
+  '@effect/vitest': '0.30.0'
+  '@types/node': '^24.13.3'
+  commander: '^15.0.0'
+  effect: '3.22.1'
+  esbuild: '^0.28.1'
+  oxfmt: '^0.62.0'
+  oxlint: '1.77.0'
+  oxlint-tsgolint: '7.0.2001'
+  typescript: '^7.0.2'
+  vitest: '^4.1.10'
