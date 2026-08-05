@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/@effect/tsgo/schema.json",
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    "rootDir": "./src",
+    // esbuild emits the bundle; tsc is only used for type checking.
+    "noEmit": true,
+    // "preserve" implies "bundler" resolution, so relative imports don't need
+    // a file extension. esbuild resolves them at build time.
+    "module": "preserve",
+    "target": "es2022",
+    "lib": ["esnext"],
+    "types": ["node"],
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  }
+}

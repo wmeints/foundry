@@ -1,0 +1,16 @@
+packages:
+  - 'packages/*'
+  - 'vendor/*'
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  msgpackr-extract: true
+minimumReleaseAgeExclude:
+  - '@effect/tsgo-darwin-arm64@0.31.0'
+  - '@effect/tsgo-darwin-x64@0.31.0'
+  - '@effect/tsgo-linux-arm64@0.31.0'
+  - '@effect/tsgo-linux-arm@0.31.0'
+  - '@effect/tsgo-linux-x64@0.31.0'
+  - '@effect/tsgo-win32-arm64@0.31.0'
+  - '@effect/tsgo-win32-x64@0.31.0'
+  - '@effect/tsgo@0.31.0'

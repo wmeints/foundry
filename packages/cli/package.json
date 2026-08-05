@@ -1,0 +1,46 @@
+{
+  "name": "@foundry/cli",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "agentic engineering",
+    "agents",
+    "harness engineering"
+  ],
+  "license": "ISC",
+  "author": "Willem Meints",
+  "bin": {
+    "foundry": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "dist/index.js",
+    "test": "vitest --run",
+    "build": "rm -rf dist && esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --packages=external --sourcemap --outfile=dist/index.js && chmod +x dist/index.js",
+    "lint": "oxlint --fix",
+    "format": "oxfmt --write",
+    "typecheck": "tsc --noEmit",
+    "prepare": "effect-tsgo patch --typescript --oxlint"
+  },
+  "dependencies": {
+    "@effect/platform": "0.97.1",
+    "@effect/platform-node": "0.108.1",
+    "commander": "^15.0.0",
+    "effect": "3.22.1"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "0.31.0",
+    "@effect/vitest": "0.30.0",
+    "@types/node": "^24.13.3",
+    "esbuild": "^0.28.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "1.77.0",
+    "oxlint-tsgolint": "7.0.2001",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
