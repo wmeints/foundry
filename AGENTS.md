@@ -48,3 +48,10 @@ describe("something", () => {
   );
 });
 ```
+
+## Using the edit tool in this project
+
+EDIT TOOL CALL INFO:
+
+1. The most fundamental rule — The `input` must contain *both* the file reference (`[PATH#TAG]`) and the operations. 
+2. The `path` parameter isn't used for anchored edits at all and is irrelevant.
