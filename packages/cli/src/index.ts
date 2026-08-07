@@ -7,12 +7,18 @@ import * as path from "node:path";
 import { compileFoundry } from "./workflow/compiler.js";
 import { discoverWorkflows } from "./workflow/discovery.js";
 import { runWorkflow, type WorkflowDef } from "./workflow/scheduler.js";
-// Holds the current forked scheduler for graceful shutdown
+// Global state for managing workflow fibers across single and parallel run modes
 
 const foundry = program
   .name("foundry")
   .description("Automate your project with factory control loops");
 
+/**
+ * Shared state for managing workflow fibers across single and parallel run modes.
+ */
+interface _FoundryState {
+  forks: Fiber.RuntimeFiber<void, unknown>[];
+}
 /**
  * Run an Effect in the foreground, returning its result.
  * Throws on failure.
@@ -170,6 +176,7 @@ lsCommand.action(async () => {
       const scheduleType = typeof entry.schedule === "number" ? "interval" : "cron";
       console.log(`  ${name}  schedule: ${entry.schedule}s (${scheduleType})`);
     }
+    console.log("\nRun 'foundry run' without arguments to execute all workflows.");
   }).pipe(Effect.catchAll((err) => Effect.sync(() => console.error("Error:", String(err)))));
 
   await runEffect(effect);
@@ -178,51 +185,87 @@ lsCommand.action(async () => {
 /**
  * Run a specific workflow.
  */
-const runCommand = program.command("run <name>").description("Run a control loop in your project");
+const runCommand = program.command("run").argument('[name]', 'Workflow name to run (omit to run all)');
 
-runCommand.action(async (workflowName: string) => {
-  const effect = Effect.gen(function* () {
-    const compiledPath = yield* compileFoundry();
-    const workflows = yield* discoverWorkflows(compiledPath);
+runCommand.action(async (workflowName: string | undefined) => {
+  if (!workflowName) {
+    // All-workflows path
+    const fiber = Runtime.runFork(
+      Runtime.defaultRuntime,
+      Effect.gen(function* () {
+        const compiledPath = yield* compileFoundry();
+        const workflows = yield* discoverWorkflows(compiledPath);
 
-    const workflow = workflows.get(workflowName);
-    if (!workflow) {
-      console.log(`Workflow '${workflowName}' not found.`);
-      console.log("Available workflows:");
-      for (const entry of workflows.values()) {
-        console.log(`  ${entry.name}`);
-      }
-      return;
+        if (workflows.size === 0) {
+          console.log("No workflows defined.");
+          return;
+        }
+
+        const fibers: Fiber.RuntimeFiber<void, unknown>[] = yield* Effect.forEach(
+          Array.from(workflows.entries()),
+          (entry) =>
+            Effect.sync(
+              () =>
+                Runtime.runFork(
+                  Runtime.defaultRuntime,
+                  runWorkflow(entry[0], { effect: entry[1].effect, schedule: entry[1].schedule })
+                )
+            )
+        );
+
+        yield* Effect.forEach(fibers, (f) => Effect.asVoid(Fiber.join(f)), { concurrency: "unbounded" });
+      }).pipe(Effect.scoped)
+    );
+
+    (globalThis as unknown as { _foundryState: _FoundryState })._foundryState = { forks: [fiber] };
+
+    const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
+    if (Exit.isFailure(exit)) {
+      process.exit(1);
     }
+  } else {
+    // Single-workflow path
+    const fiber = Runtime.runFork(
+      Runtime.defaultRuntime,
+      Effect.gen(function* () {
+        const compiledPath = yield* compileFoundry();
+        const workflows = yield* discoverWorkflows(compiledPath);
 
-    const def: WorkflowDef = {
-      effect: workflow.effect,
-      schedule: workflow.schedule,
-    };
+        const workflow = workflows.get(workflowName);
+        if (!workflow) {
+          console.log(`Workflow '${workflowName}' not found.`);
+          console.log("Available workflows:");
+          for (const entry of workflows.values()) {
+            console.log(`  ${entry.name}`);
+          }
+          return;
+        }
 
-    yield* runWorkflow(workflowName, def);
-  }).pipe(Effect.scoped);
+        const def: WorkflowDef = {
+          effect: workflow.effect,
+          schedule: workflow.schedule,
+        };
 
-  // Fork the scheduler so SIGINT can interrupt it gracefully
-  const fiber = Runtime.runFork(Runtime.defaultRuntime, effect);
-  (
-    globalThis as unknown as { _foundryFork: Fiber.RuntimeFiber<unknown, unknown> | undefined }
-  )._foundryFork = fiber;
+        yield* runWorkflow(workflowName, def);
+      }).pipe(Effect.scoped)
+    );
 
-  // Await the fiber — will resolve on completion or be interrupted by SIGINT
-  const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
-  if (Exit.isFailure(exit)) {
-    process.exit(1);
+    // Fork the scheduler so SIGINT can interrupt it gracefully
+    (globalThis as unknown as { _foundryState: _FoundryState })._foundryState = { forks: [fiber] };
+
+    // Await the fiber — will resolve on completion or be interrupted by SIGINT
+    const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
+    if (Exit.isFailure(exit)) {
+      process.exit(1);
+    }
   }
 });
 
-// SIGINT handler: interrupt the fiber gracefully
+// SIGINT handler: interrupt all workflow fibers gracefully
 process.on("SIGINT", () => {
-  const fiber = (
-    globalThis as unknown as { _foundryFork: Fiber.RuntimeFiber<unknown, unknown> | undefined }
-  )._foundryFork;
-  if (fiber) {
-    Fiber.interrupt(fiber);
+  const state = (globalThis as unknown as { _foundryState: _FoundryState | undefined })._foundryState;
+  if (state) {
+    state.forks.forEach((f) => Fiber.interrupt(f));
   }
   console.log("\nShutting down...");
   process.exit(0);
