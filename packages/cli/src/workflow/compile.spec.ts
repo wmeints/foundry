@@ -1,5 +1,4 @@
 import { describe, it, expect } from "@effect/vitest";
-import { Effect } from "effect";
 import { compileFoundry } from "./compiler";
 
 describe("compiler", () => {

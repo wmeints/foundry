@@ -10,16 +10,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Compile the .foundry TypeScript package.
  * Returns the path to the compiled index.js or an error.
  */
-export function compileFoundry(
-  projectRoot: string = process.cwd(),
-): Effect.Effect<string, string> {
+export function compileFoundry(projectRoot: string = process.cwd()): Effect.Effect<string, string> {
   return Effect.gen(function* () {
     const foundryDir = path.join(projectRoot, ".foundry");
 
     if (!fs.existsSync(foundryDir)) {
-      return yield* Effect.fail(
-        "No .foundry directory found. Run `foundry init` to scaffold.",
-      );
+      return yield* Effect.fail("No .foundry directory found. Run `foundry init` to scaffold.");
     }
 
     const tsconfigPath = path.join(foundryDir, "tsconfig.json");
@@ -29,11 +25,7 @@ export function compileFoundry(
 
     // Check if compilation is needed by comparing timestamps
     const tsbuildinfo = path.join(foundryDir, "dist/.tsbuildinfo");
-    const shouldRecompile = checkNeedsRecompile(
-      foundryDir,
-      tsbuildinfo,
-      tsconfigPath,
-    );
+    const shouldRecompile = checkNeedsRecompile(foundryDir, tsbuildinfo, tsconfigPath);
 
     if (shouldRecompile) {
       const tscPath = findTsc(projectRoot);

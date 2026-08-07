@@ -14,7 +14,7 @@ export function runWorkflow(
 ): Effect.Effect<void, unknown, never> {
   const effect = workflow.effect as Effect.Effect<unknown, unknown, never>;
 
-  const runOnce = effect.asVoid();
+  const runOnce = Effect.asVoid(effect);
 
   const loopEffect = buildLoop(name, workflow.schedule, runOnce);
 
@@ -57,9 +57,7 @@ function buildIntervalLoop(
 
     const loop = runAndLog.pipe(
       Effect.flatMap(() =>
-        Effect.sleep(Duration.millis(intervalMs)).pipe(
-          Effect.flatMap(() => runAndLog),
-        ),
+        Effect.sleep(Duration.millis(intervalMs)).pipe(Effect.flatMap(() => runAndLog)),
       ),
       Effect.repeat(Schedule.forever),
     );
@@ -78,17 +76,13 @@ function buildCronLoop(
 
     const nextTime = computeNextCronTime(expression);
     if (nextTime === null) {
-      yield* Effect.logError(
-        `[${name}] Invalid cron expression: ${expression}`,
-      );
+      yield* Effect.logError(`[${name}] Invalid cron expression: ${expression}`);
       return;
     }
 
     const delayMs = Math.max(0, nextTime - Date.now());
     if (delayMs > 0) {
-      yield* Effect.logInfo(
-        `[${name}] Next execution at ${new Date(nextTime).toISOString()}`,
-      );
+      yield* Effect.logInfo(`[${name}] Next execution at ${new Date(nextTime).toISOString()}`);
     }
 
     const runAndLog = runOnce.pipe(
@@ -133,15 +127,7 @@ function computeNextCronTime(expression: string): number | null {
     if (Number.isNaN(month) || month < 1 || month > 12) return null;
 
     const now = new Date();
-    const next = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      dayOfMonth,
-      hour,
-      minute,
-      0,
-      0,
-    );
+    const next = new Date(now.getFullYear(), now.getMonth(), dayOfMonth, hour, minute, 0, 0);
 
     if (next <= now) {
       next.setDate(next.getDate() + 1);

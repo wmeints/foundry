@@ -63,10 +63,7 @@ describe("compiler", () => {
         );
 
         // Create a simple index.ts
-        fs.writeFileSync(
-          path.join(foundryDir, "index.ts"),
-          `export const hello = "world";`,
-        );
+        fs.writeFileSync(path.join(foundryDir, "index.ts"), `export const hello = "world";`);
 
         process.chdir(tempDir);
 
@@ -120,10 +117,7 @@ describe("compiler", () => {
         );
 
         // Create a simple index.ts
-        fs.writeFileSync(
-          path.join(foundryDir, "index.ts"),
-          `export const hello = "world";`,
-        );
+        fs.writeFileSync(path.join(foundryDir, "index.ts"), `export const hello = "world";`);
 
         process.chdir(tempDir);
 

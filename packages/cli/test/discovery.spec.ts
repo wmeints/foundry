@@ -10,9 +10,7 @@ describe("discovery", () => {
       const emptyDir = fs.mkdtempSync(path.join("/tmp", "foundry-test-"));
       const nonExistentCompiled = path.join(emptyDir, "dist", "index.js");
 
-      const result = await Effect.runPromise(
-        discoverWorkflows(nonExistentCompiled),
-      );
+      const result = await Effect.runPromise(discoverWorkflows(nonExistentCompiled));
 
       expect(result.size).toBe(0);
       fs.rmSync(emptyDir, { recursive: true, force: true });
@@ -35,9 +33,7 @@ describe("discovery", () => {
 
       const nonExistentCompiled = path.join(testDir, "dist", "index.js");
 
-      const result = await Effect.runPromise(
-        discoverWorkflows(nonExistentCompiled),
-      );
+      const result = await Effect.runPromise(discoverWorkflows(nonExistentCompiled));
 
       expect(result.size).toBe(2);
       expect(result.has("workflow1")).toBe(true);
@@ -51,10 +47,7 @@ describe("discovery", () => {
       const workflowsDir = path.join(testDir, "workflows");
       fs.mkdirSync(workflowsDir);
 
-      fs.writeFileSync(
-        path.join(workflowsDir, "invalid.ts"),
-        `export default { schedule: 60 };`,
-      );
+      fs.writeFileSync(path.join(workflowsDir, "invalid.ts"), `export default { schedule: 60 };`);
       fs.writeFileSync(
         path.join(workflowsDir, "valid.ts"),
         `export default { effect: 42, schedule: 60 };`,
@@ -76,10 +69,7 @@ describe("discovery", () => {
       const workflowsDir = path.join(testDir, "workflows");
       fs.mkdirSync(workflowsDir);
 
-      fs.writeFileSync(
-        path.join(workflowsDir, "invalid.ts"),
-        `export default { effect: 42 };`,
-      );
+      fs.writeFileSync(path.join(workflowsDir, "invalid.ts"), `export default { effect: 42 };`);
       fs.writeFileSync(
         path.join(workflowsDir, "valid.ts"),
         `export default { effect: 42, schedule: 60 };`,

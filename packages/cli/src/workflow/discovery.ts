@@ -51,24 +51,18 @@ export function discoverWorkflows(
         const hasSchedule = "schedule" in defaultExport;
 
         if (!hasEffect) {
-          console.warn(
-            `[foundry] Skipping ${fileName}: missing 'effect' field`,
-          );
+          console.warn(`[foundry] Skipping ${fileName}: missing 'effect' field`);
           continue;
         }
 
         if (!hasSchedule) {
-          console.warn(
-            `[foundry] Skipping ${fileName}: missing 'schedule' field`,
-          );
+          console.warn(`[foundry] Skipping ${fileName}: missing 'schedule' field`);
           continue;
         }
 
         const schedule = defaultExport.schedule;
         if (typeof schedule !== "number" && typeof schedule !== "string") {
-          console.warn(
-            `[foundry] Skipping ${fileName}: 'schedule' must be a number or string`,
-          );
+          console.warn(`[foundry] Skipping ${fileName}: 'schedule' must be a number or string`);
           continue;
         }
 
@@ -78,7 +72,9 @@ export function discoverWorkflows(
           schedule,
         });
       } catch (err) {
-        console.warn(`[foundry] Error loading ${fileName}: ${err instanceof Error ? err.message : String(err)}`);
+        console.warn(
+          `[foundry] Error loading ${fileName}: ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
 

@@ -1,10 +1,11 @@
 import { describe, it, expect } from "@effect/vitest";
 import { Effect } from "effect";
-import { discoverWorkflows, type WorkflowEntry } from "./discovery";
+import { type WorkflowEntry } from "./discovery";
 
 describe("workflow discovery", () => {
   it.effect("discovers a valid workflow", () =>
     Effect.gen(function* () {
+      yield* Effect.void;
       const mockWorkflow: WorkflowEntry = {
         name: "test",
         effect: Effect.log("test"),
@@ -21,6 +22,7 @@ describe("workflow discovery", () => {
 
   it.effect("returns empty map when no workflows found", () =>
     Effect.gen(function* () {
+      yield* Effect.void;
       const map = new Map<string, WorkflowEntry>();
       expect(map.size).toBe(0);
     }),
@@ -28,6 +30,7 @@ describe("workflow discovery", () => {
 
   it.effect("validates schedule type", () =>
     Effect.gen(function* () {
+      yield* Effect.void;
       const numberSchedule: WorkflowEntry = {
         name: "number",
         effect: Effect.void,

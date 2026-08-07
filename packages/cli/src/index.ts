@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { program } from "commander";
-import { Cause, Effect, Exit, Runtime, type Fork } from "effect";
+import { Cause, Effect, Exit, Fiber, Runtime } from "effect";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { compileFoundry } from "./workflow/compiler.js";
-import { discoverWorkflows, type WorkflowEntry } from "./workflow/discovery.js";
+import { discoverWorkflows } from "./workflow/discovery.js";
 import { runWorkflow, type WorkflowDef } from "./workflow/scheduler.js";
 // Holds the current forked scheduler for graceful shutdown
 
@@ -33,9 +33,7 @@ async function runEffect<A>(effect: Effect.Effect<A, unknown>): Promise<A> {
 /**
  * Scaffold the .foundry directory.
  */
-const initCommand = program
-  .command("init")
-  .description("Initialize foundry in your project");
+const initCommand = program.command("init").description("Initialize foundry in your project");
 
 initCommand.action(() => {
   const projectRoot = process.cwd();
@@ -144,15 +142,10 @@ export default {
   schedule: 60, // Run every 60 seconds
 };
 `;
-  fs.writeFileSync(
-    path.join(foundryDir, "workflows", "implementation.ts"),
-    sampleWorkflow,
-  );
+  fs.writeFileSync(path.join(foundryDir, "workflows", "implementation.ts"), sampleWorkflow);
 
   console.log("Foundry initialized!");
-  console.log(
-    "Edit .foundry/workflows/*.ts to define your workflows.",
-  );
+  console.log("Edit .foundry/workflows/*.ts to define your workflows.");
   console.log('Run "foundry ls" to list workflows.');
   console.log('Run "foundry run <name>" to execute a workflow.');
 });
@@ -160,9 +153,7 @@ export default {
 /**
  * List discovered workflows.
  */
-const lsCommand = program
-  .command("ls")
-  .description("List discovered workflows");
+const lsCommand = program.command("ls").description("List discovered workflows");
 
 lsCommand.action(async () => {
   const effect = Effect.gen(function* () {
@@ -176,15 +167,10 @@ lsCommand.action(async () => {
 
     console.log("Discovered workflows:");
     for (const [name, entry] of workflows) {
-      const scheduleType =
-        typeof entry.schedule === "number" ? "interval" : "cron";
+      const scheduleType = typeof entry.schedule === "number" ? "interval" : "cron";
       console.log(`  ${name}  schedule: ${entry.schedule}s (${scheduleType})`);
     }
-  }).pipe(
-    Effect.catchAll((err) =>
-      Effect.sync(() => console.error("Error:", String(err))),
-    ),
-  );
+  }).pipe(Effect.catchAll((err) => Effect.sync(() => console.error("Error:", String(err)))));
 
   await runEffect(effect);
 });
@@ -192,9 +178,7 @@ lsCommand.action(async () => {
 /**
  * Run a specific workflow.
  */
-const runCommand = program
-  .command("run <name>")
-  .description("Run a control loop in your project");
+const runCommand = program.command("run <name>").description("Run a control loop in your project");
 
 runCommand.action(async (workflowName: string) => {
   const effect = Effect.gen(function* () {
@@ -220,21 +204,25 @@ runCommand.action(async (workflowName: string) => {
   }).pipe(Effect.scoped);
 
   // Fork the scheduler so SIGINT can interrupt it gracefully
-  const fork = Runtime.runFork(Runtime.defaultRuntime, effect);
-  (globalThis as unknown as { _foundryFork: Fork<unknown, unknown, unknown> })._foundryFork = fork;
+  const fiber = Runtime.runFork(Runtime.defaultRuntime, effect);
+  (
+    globalThis as unknown as { _foundryFork: Fiber.RuntimeFiber<unknown, unknown> | undefined }
+  )._foundryFork = fiber;
 
-  // Await the fork — will resolve on completion or be interrupted by SIGINT
-  const exit = await fork.awaitResult();
+  // Await the fiber — will resolve on completion or be interrupted by SIGINT
+  const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
   if (Exit.isFailure(exit)) {
     process.exit(1);
   }
 });
 
-// SIGINT handler: stop the forked scheduler gracefully
+// SIGINT handler: interrupt the fiber gracefully
 process.on("SIGINT", () => {
-  const fork = (globalThis as unknown as { _foundryFork: Fork<unknown, unknown, unknown> | undefined })._foundryFork;
-  if (fork) {
-    Runtime.stop(fork);
+  const fiber = (
+    globalThis as unknown as { _foundryFork: Fiber.RuntimeFiber<unknown, unknown> | undefined }
+  )._foundryFork;
+  if (fiber) {
+    Fiber.interrupt(fiber);
   }
   console.log("\nShutting down...");
   process.exit(0);
