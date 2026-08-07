@@ -2,9 +2,8 @@
   "name": "foundry",
   "version": "0.1.0",
   "description": "",
-
   "scripts": {
-
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +15,23 @@
       "onFail": "download"
     }
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0"
+  },
+  "lint-staged": {
+    "packages/cli/**/*.{ts,tsx,js,jsx}": [
+      "pnpm --filter '@foundry/cli' run format",
+      "pnpm --filter '@foundry/cli' run lint",
+      "pnpm --filter '@foundry/cli' run test"
+    ],
+    "packages/tasks/**/*.{ts,tsx,js,jsx}": [
+      "pnpm --filter '@foundry/tasks' run format",
+      "pnpm --filter '@foundry/tasks' run lint",
+      "pnpm --filter '@foundry/tasks' run test"
+    ]
+  }
 }
