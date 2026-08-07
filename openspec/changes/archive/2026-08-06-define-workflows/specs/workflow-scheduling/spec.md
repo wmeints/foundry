@@ -1,12 +1,15 @@
 ## Purpose
 
-Workflow scheduling provides the ability to execute discovered workflow Effects on a recurring schedule, supporting both fixed intervals (in seconds) and cron expressions, while keeping the factory runtime alive until the user stops it.
+Workflow scheduling provides the ability to execute discovered workflow Effects on a recurring
+schedule, supporting both fixed intervals (in seconds) and cron expressions, while keeping the
+factory runtime alive until the user stops it.
 
 ## ADDED Requirements
 
 ### Requirement: Interval scheduling
 
-The system supports numeric schedule values (in seconds) that cause a workflow to execute repeatedly at fixed intervals.
+The system supports numeric schedule values (in seconds) that cause a workflow to execute repeatedly
+at fixed intervals.
 
 #### Scenario: Run workflow with interval schedule
 
@@ -33,7 +36,8 @@ The system supports numeric schedule values (in seconds) that cause a workflow t
 
 ### Requirement: Cron scheduling
 
-The system supports cron expression strings as schedule values that control when a workflow executes.
+The system supports cron expression strings as schedule values that control when a workflow
+executes.
 
 #### Scenario: Run workflow with cron schedule
 

@@ -1,7 +1,7 @@
 # Agent instructions
 
-This project builds a workflow engine for running control loops to build a local
-software factory using the effect library.
+This project builds a workflow engine for running control loops to build a local software factory
+using the effect library.
 
 ## Technology stack
 
@@ -11,30 +11,28 @@ software factory using the effect library.
 
 ## General coding guidelines
 
-- **Prefer deep modules with narrow interfaces.** Build focused, cohesive units
-  and keep exports minimal and well-defined.
+- **Prefer deep modules with narrow interfaces.** Build focused, cohesive units and keep exports
+  minimal and well-defined.
 
-- **Reuse existing functionality as much as possible.** Before writing new code,
-  check whether a standard library function or a function already available in
-  one of the project dependencies can handle the task.
+- **Reuse existing functionality as much as possible.** Before writing new code, check whether a
+  standard library function or a function already available in one of the project dependencies can
+  handle the task.
 
-- **Only write new code when necessary.** If no standard function or project
-  dependency provides what you need, then write it.
+- **Only write new code when necessary.** If no standard function or project dependency provides
+  what you need, then write it.
 
-- **Use red-green-refactor when writing code.** Write a failing test first
-  (red), make it pass with the minimal code needed (green), then refine the
-  design and remove duplication (refactor).
+- **Use red-green-refactor when writing code.** Write a failing test first (red), make it pass with
+  the minimal code needed (green), then refine the design and remove duplication (refactor).
 
 ## Vendor libraries
 
-- `vendor/effect` contains the source files for the effect libraries. The
-  packages in this project MUST use the published version of the packages. The
-  source code is there for reference only!
+- `vendor/effect` contains the source files for the effect libraries. The packages in this project
+  MUST use the published version of the packages. The source code is there for reference only!
 
 ## Writing tests
 
-When writing tests, use the `@effect/vitest` library. It allows you to write
-tests like this when testing individual effects:
+When writing tests, use the `@effect/vitest` library. It allows you to write tests like this when
+testing individual effects:
 
 ```typescript
 import { describe } from "vitest";
@@ -53,5 +51,6 @@ describe("something", () => {
 
 EDIT TOOL CALL INFO:
 
-1. The most fundamental rule — The `input` must contain *both* the file reference (`[PATH#TAG]`) and the operations. 
+1. The most fundamental rule — The `input` must contain _both_ the file reference (`[PATH#TAG]`) and
+   the operations.
 2. The `path` parameter isn't used for anchored edits at all and is irrelevant.

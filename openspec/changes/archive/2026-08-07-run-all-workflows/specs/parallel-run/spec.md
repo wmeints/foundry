@@ -1,12 +1,14 @@
 ## Purpose
 
-The parallel run capability allows the `foundry run` command to discover and execute all workflow definitions concurrently when invoked without an explicit workflow name argument.
+The parallel run capability allows the `foundry run` command to discover and execute all workflow
+definitions concurrently when invoked without an explicit workflow name argument.
 
 ## ADDED Requirements
 
 ### Requirement: Optional run argument
 
-The `foundry run` command accepts an optional workflow name argument. When called without a name, it runs all discovered workflows.
+The `foundry run` command accepts an optional workflow name argument. When called without a name, it
+runs all discovered workflows.
 
 #### Scenario: Run all workflows when no name given
 
@@ -32,7 +34,8 @@ The `foundry run` command accepts an optional workflow name argument. When calle
 
 ### Requirement: Concurrent execution
 
-When running all workflows, each workflow executes in its own fiber on its own schedule without blocking other workflows.
+When running all workflows, each workflow executes in its own fiber on its own schedule without
+blocking other workflows.
 
 #### Scenario: Workflows execute independently
 
