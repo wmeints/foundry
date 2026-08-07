@@ -4,6 +4,8 @@
   "exclude": ["./node_modules", "./dist"],
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "lib": ["ES2024"],
+    "exactOptionalPropertyTypes": false
   }
 }

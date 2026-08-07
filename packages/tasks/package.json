@@ -15,6 +15,9 @@
     "format": "oxfmt --write",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "effect": "catalog:"
+  },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
     "@effect/vitest": "catalog:",
