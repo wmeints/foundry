@@ -185,7 +185,9 @@ lsCommand.action(async () => {
 /**
  * Run a specific workflow.
  */
-const runCommand = program.command("run").argument('[name]', 'Workflow name to run (omit to run all)');
+const runCommand = program
+  .command("run")
+  .argument("[name]", "Workflow name to run (omit to run all)");
 
 runCommand.action(async (workflowName: string | undefined) => {
   if (!workflowName) {
@@ -204,17 +206,18 @@ runCommand.action(async (workflowName: string | undefined) => {
         const fibers: Fiber.RuntimeFiber<void, unknown>[] = yield* Effect.forEach(
           Array.from(workflows.entries()),
           (entry) =>
-            Effect.sync(
-              () =>
-                Runtime.runFork(
-                  Runtime.defaultRuntime,
-                  runWorkflow(entry[0], { effect: entry[1].effect, schedule: entry[1].schedule })
-                )
-            )
+            Effect.sync(() =>
+              Runtime.runFork(
+                Runtime.defaultRuntime,
+                runWorkflow(entry[0], { effect: entry[1].effect, schedule: entry[1].schedule }),
+              ),
+            ),
         );
 
-        yield* Effect.forEach(fibers, (f) => Effect.asVoid(Fiber.join(f)), { concurrency: "unbounded" });
-      }).pipe(Effect.scoped)
+        yield* Effect.forEach(fibers, (f) => Effect.asVoid(Fiber.join(f)), {
+          concurrency: "unbounded",
+        });
+      }).pipe(Effect.scoped),
     );
 
     (globalThis as unknown as { _foundryState: _FoundryState })._foundryState = { forks: [fiber] };
@@ -247,7 +250,7 @@ runCommand.action(async (workflowName: string | undefined) => {
         };
 
         yield* runWorkflow(workflowName, def);
-      }).pipe(Effect.scoped)
+      }).pipe(Effect.scoped),
     );
 
     // Fork the scheduler so SIGINT can interrupt it gracefully
@@ -263,7 +266,8 @@ runCommand.action(async (workflowName: string | undefined) => {
 
 // SIGINT handler: interrupt all workflow fibers gracefully
 process.on("SIGINT", () => {
-  const state = (globalThis as unknown as { _foundryState: _FoundryState | undefined })._foundryState;
+  const state = (globalThis as unknown as { _foundryState: _FoundryState | undefined })
+    ._foundryState;
   if (state) {
     state.forks.forEach((f) => Fiber.interrupt(f));
   }
