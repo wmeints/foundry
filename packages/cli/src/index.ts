@@ -70,9 +70,9 @@ initCommand.action(() => {
       effect: "^3.22.0",
     },
     devDependencies: {
-      "@effect/tsgo": "catalog:",
-      "@types/node": "catalog:",
-      typescript: "catalog:",
+      "@effect/tsgo": "0.31.0",
+      "@types/node": "^24.13.3",
+      typescript: "^7.0.2",
     },
   };
   fs.writeFileSync(
@@ -224,6 +224,7 @@ runCommand.action(async (workflowName: string | undefined) => {
 
     const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
     if (Exit.isFailure(exit)) {
+      console.error("Run failed:", Cause.pretty(exit.cause));
       process.exit(1);
     }
   } else {
@@ -259,6 +260,7 @@ runCommand.action(async (workflowName: string | undefined) => {
     // Await the fiber — will resolve on completion or be interrupted by SIGINT
     const exit = await Runtime.runPromiseExit(Runtime.defaultRuntime, Fiber.join(fiber));
     if (Exit.isFailure(exit)) {
+      console.error("Run failed:", Cause.pretty(exit.cause));
       process.exit(1);
     }
   }

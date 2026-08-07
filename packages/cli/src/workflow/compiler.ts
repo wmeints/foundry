@@ -10,9 +10,36 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Compile the .foundry TypeScript package.
  * Returns the path to the compiled index.js or an error.
  */
-export function compileFoundry(projectRoot: string = process.cwd()): Effect.Effect<string, string> {
+/**
+ * Walk up the directory tree to find the workspace root by looking for
+ * a pnpm-workspace.yaml or a package.json with "workspaces" field.
+ */
+function findWorkspaceRoot(startDir: string): string {
+  let dir = path.resolve(startDir);
+  const maxDepth = 20;
+  for (let i = 0; i < maxDepth; i++) {
+    if (
+      fs.existsSync(path.join(dir, "pnpm-workspace.yaml")) ||
+      (fs.existsSync(path.join(dir, "package.json")) &&
+        JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf-8")).workspaces)
+    ) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break; // reached root
+    dir = parent;
+  }
+  return startDir;
+}
+
+/**
+ * @deprecated The projectRoot parameter is ignored; workspace root is always auto-discovered.
+ */
+export function compileFoundry(_projectRoot?: string): Effect.Effect<string, string> {
   return Effect.gen(function* () {
-    const foundryDir = path.join(projectRoot, ".foundry");
+    // Resolve the workspace root by walking up from CWD looking for a workspace manifest.
+    const workspaceRoot = findWorkspaceRoot(process.cwd());
+    const foundryDir = path.join(workspaceRoot, ".foundry");
 
     if (!fs.existsSync(foundryDir)) {
       return yield* Effect.fail("No .foundry directory found. Run `foundry init` to scaffold.");
@@ -27,8 +54,20 @@ export function compileFoundry(projectRoot: string = process.cwd()): Effect.Effe
     const tsbuildinfo = path.join(foundryDir, "dist/.tsbuildinfo");
     const shouldRecompile = checkNeedsRecompile(foundryDir, tsbuildinfo, tsconfigPath);
 
+    // Ensure dependencies are installed — .foundry is not a workspace package, so
+    // it must install its own node_modules independently via npm.
+    if (
+      fs.existsSync(path.join(foundryDir, "package.json")) &&
+      !fs.existsSync(path.join(foundryDir, "node_modules"))
+    ) {
+      const result = spawnSync("npm", ["install"], { cwd: foundryDir, encoding: "utf-8" });
+      if (result.status !== 0) {
+        const message = result.stderr || result.stdout || "Failed to install .foundry dependencies";
+        return yield* Effect.fail(message);
+      }
+    }
     if (shouldRecompile) {
-      const tscPath = findTsc(projectRoot);
+      const tscPath = findTsc(workspaceRoot);
       const result = spawnSync(tscPath, ["--project", tsconfigPath], {
         cwd: foundryDir,
         encoding: "utf-8",

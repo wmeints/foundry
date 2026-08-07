@@ -9,11 +9,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "cron-parser": "^5.0.0"
+    "cron-parser": "^5.0.0",
+    "effect": "^3.22.0"
   },
   "devDependencies": {
-    "@effect/tsgo": "catalog:",
-    "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "@effect/tsgo": "0.31.0",
+    "@types/node": "^24.13.3",
+    "typescript": "^7.0.2"
   }
 }
