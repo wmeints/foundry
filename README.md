@@ -4,12 +4,136 @@ Build your local AI factory with oh-my-pi and workflows. This is meant as an exp
 
 ## Getting started
 
-TODO: Describe how to install the tool and how to use it.
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 20+
+- [pnpm](https://pnpm.io/) 11+ (installed automatically if missing)
+
+### Development setup
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd foundry
+
+# Install dependencies (pnpm is auto-resolved via devEngines)
+pnpm install
+```
+
+This workspace contains the following packages:
+
+- `packages/cli` — the `foundry` CLI tool
+- `packages/tasks` — standard effects for building factory workflows
+
+Each package supports these scripts:
+
+| Script | Description |
+|--------|-------------|
+| `build` | Compile TypeScript to JavaScript |
+| `test` | Run tests with vitest |
+| `test:watch` | Run tests in watch mode |
+| `lint` | Lint source files with oxlint |
+| `format` | Format source files with oxfmt |
+| `typecheck` | Type-check without emitting output |
+
+### Building the CLI
+
+```bash
+pnpm --filter '@foundry/cli' build
+```
+
+### Using the tool locally
+
+After building the CLI, you can run it from the workspace root:
+
+```bash
+# Initialize a .foundry directory in your project
+pnpm --filter '@foundry/cli' start init
+
+# List discovered workflows
+pnpm --filter '@foundry/cli' start ls
+
+# Run a specific workflow by name
+pnpm --filter '@foundry/cli' start run <workflow-name>
+
+# Run all workflows
+pnpm --filter '@foundry/cli' start run
+```
+
+Or install globally so the `foundry` command is available everywhere:
+
+```bash
+pnpm --filter '@foundry/cli' install --global
+```
+
+Once installed, the standard commands become:
+
+```bash
+foundry init       # Scaffold .foundry/ with a sample workflow
+foundry ls         # List all discovered workflows
+foundry run        # Run all workflows
+foundry run <name> # Run a specific workflow
+```
+
+## Running the Foundry tool
+
+The Foundry CLI works by compiling TypeScript workflows in your project's `.foundry/` directory and scheduling them as Effect fibers.
+
+### Quick start
+
+```bash
+# 1. Scaffold your project
+foundry init
+
+# 2. Edit .foundry/workflows/*.ts to define your control loops
+
+# 3. Run the factory
+foundry run
+```
+
+The `init` command creates:
+
+- `.foundry/package.json` -- dependencies for the workflow package
+- `.foundry/tsconfig.json` -- TypeScript configuration
+- `.foundry/index.ts` -- workflow registry
+- `.foundry/workflows/implementation.ts` -- a sample workflow
+
+### Writing workflows
+
+Workflows are TypeScript files in `.foundry/workflows/`. Each file must export a `default` object with two fields:
+
+```typescript
+import { Effect } from "effect";
+
+export default {
+  effect: Effect.log("Hello from the implementation workflow!"),
+  schedule: 60, // Run every 60 seconds (or a cron expression like "0 * * * *")
+};
+```
+
+- `effect` -- an Effect that runs on each iteration. This is the core logic of your control loop.
+- `schedule` -- either a number (seconds between runs) or a cron expression string.
+
+Each `.ts` file in the `workflows/` directory is discovered automatically. Files without a valid `effect` + `schedule` export are silently skipped.
+
+### Running workflows
+
+```bash
+foundry run              # Run all workflows (each on its own schedule)
+foundry run <name>       # Run a single workflow until completion
+foundry ls               # List all discovered workflows and their schedules
+```
+
+Control loops run indefinitely. Press `Ctrl+C` to gracefully shut down all fibers.
+
+### Architecture
+
+See the [Architecture](#architecture) section below.
 
 ## Project structure 
 
 - `packages/cli` - Contains the `foundry` CLI that allows you to run factory control loops.
-- `package/tasks` - Contains the standard effects you can use in the factory.
+- `packages/tasks` - Contains the standard effects you can use in the factory.
 
 ## Architecture
 
